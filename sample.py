@@ -7,6 +7,8 @@ from contextlib import nullcontext
 import torch
 import tiktoken
 from model import GPTConfig, GPT
+import matplotlib.pyplot as plt
+import numpy as np
 
 # -----------------------------------------------------------------------------
 init_from = 'resume' # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
@@ -20,6 +22,7 @@ seed = 1337
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1', etc.
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32' or 'bfloat16' or 'float16'
 compile = False # use PyTorch 2.0 to compile the model to be faster
+show_probs = False   # displays a bar chart showing the probability of the top 10 tokens
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
 
@@ -87,3 +90,41 @@ with torch.no_grad():
             y = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
             print(decode(y[0].tolist()))
             print('---------------')
+            
+            # show probability bar chart for the final token of this sample
+            if show_probs:
+                with torch.no_grad():
+                    with ctx:
+                        
+                        # prefix = all tokens up to but not including the final generated token
+                        prefix = y[:, :-1]
+                        selected_tok = int(y[0, -1].item())
+                        logits, _ = model(prefix)
+                        
+                        # logits may be shape (B,1,C) — reduce to (B,C)
+                        if logits.dim() == 3:
+                            logits = logits[:, -1, :]
+                            
+                        # apply temperature and top_k cropping same as in generate()
+                        logits = logits / float(temperature)
+                        if top_k is not None:
+                            v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                            logits[logits < v[:, [-1]]] = -float('Inf')
+                        probs = torch.softmax(logits, dim=-1)
+                        
+                        # get top 10 tokens
+                        topk = min(10, probs.size(-1))
+                        topv, topi = torch.topk(probs, topk)
+                        topv = topv[0].cpu().numpy()
+                        topi = topi[0].cpu().numpy()
+                        token_strs = [decode([int(i)]) for i in topi]
+                        colors = ['C1' if int(i) == selected_tok else 'C0' for i in topi]
+                        
+                        plt.figure(figsize=(10,4))
+                        x_pos = np.arange(len(topv))
+                        plt.bar(x_pos, topv, color=colors)
+                        plt.xticks(x_pos, token_strs, rotation=45, ha='right')
+                        plt.ylabel('Probability')
+                        plt.title(f'Top {len(topv)} token probabilities (sample {k+1})')
+                        plt.tight_layout()
+                        plt.show()
