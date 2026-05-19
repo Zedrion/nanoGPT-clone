@@ -310,6 +310,7 @@ class GPT(nn.Module):
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
+        sum_log_prob = 0.0   # Initialize log probability sum
         for _ in range(max_new_tokens):
             # if the sequence context is growing too long we must crop it at block_size
             idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
@@ -325,6 +326,10 @@ class GPT(nn.Module):
             probs = F.softmax(logits, dim=-1)
             # sample from the distribution
             idx_next = torch.multinomial(probs, num_samples=1)
+            
+            # add log probability of next token to sum
+            token_log_prob = torch.log(probs[0, int(idx_next[0].item())])
+            sum_log_prob += token_log_prob.item()
             
             if show_probs:
                 probs_cpu = probs[0].detach().cpu()
@@ -346,5 +351,6 @@ class GPT(nn.Module):
                 plt.close()
             # append sampled index to the running sequence and continue
             idx = torch.cat((idx, idx_next), dim=1)
-
-        return idx
+        # exponentiate log accumulation to get actual probability of sequence
+        sequence_prob = torch.exp(torch.tensor(sum_log_prob)).item()  # or import numpy/math and use numpy.exp()/math.exp()
+        return idx, sequence_prob
