@@ -353,4 +353,5 @@ class GPT(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1)
         # exponentiate log accumulation to get actual probability of sequence
         sequence_prob = torch.exp(torch.tensor(sum_log_prob)).item()  # or import numpy/math and use numpy.exp()/math.exp()
+        if show_probs: print(f"\nProbability of sequence: {sequence_prob}")
         return idx, sequence_prob
