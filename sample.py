@@ -87,6 +87,7 @@ x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
 with torch.no_grad():
     with ctx:
         for k in range(num_samples):
-            y = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, show_probs=show_probs, decode=decode)
+            y, seq_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, show_probs=show_probs, decode=decode)
             print(decode(y[0].tolist()))
             print('---------------')
+            if show_probs: print(f"\nProbability of sequence: {seq_prob}")
