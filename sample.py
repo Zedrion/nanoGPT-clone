@@ -96,10 +96,20 @@ with torch.no_grad():
                 with torch.no_grad():
                     with ctx:
                         
-                        # prefix = all tokens up to but not including the final generated token
-                        prefix = y[:, :-1]
-                        selected_tok = int(y[0, -1].item())
-                        logits, _ = model(prefix)
+                        # compute probabilities for the first generated token
+                        # the first generated token is the token immediately after the prompt
+                        prompt_len = x.size(1)
+                        if prompt_len > 0:
+                            first_gen_idx = prompt_len
+                            # prefix = all tokens up to but not including the first generated token (i.e., the prompt)
+                            prefix = y[:, :first_gen_idx]
+                            selected_tok = int(y[0, first_gen_idx].item())
+                            logits, _ = model(prefix)
+                        else:
+                            # fallback: if no prompt tokens, fall back to previous behavior (final token)
+                            prefix = y[:, :-1]
+                            selected_tok = int(y[0, -1].item())
+                            logits, _ = model(prefix)
                         
                         # logits may be shape (B,1,C) — reduce to (B,C)
                         if logits.dim() == 3:
