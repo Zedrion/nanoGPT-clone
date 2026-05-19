@@ -14,6 +14,7 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+import matplotlib.pyplot as plt
 
 class LayerNorm(nn.Module):
     """ LayerNorm but with an optional bias. PyTorch doesn't support simply bias=False """
@@ -303,7 +304,7 @@ class GPT(nn.Module):
         return mfu
 
     @torch.no_grad()
-    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
+    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None, show_probs=False, decode=None):
         """
         Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
@@ -324,6 +325,24 @@ class GPT(nn.Module):
             probs = F.softmax(logits, dim=-1)
             # sample from the distribution
             idx_next = torch.multinomial(probs, num_samples=1)
+            
+            if show_probs:
+                # return the top 10 highest probabilities and their indices in probs
+                top_probs, top_indices = torch.topk(probs, k=10, dim=-1, largest=True, sorted=True)
+                # labels for the top 10
+                top_labels = [decode([i.item()]) for i in top_indices[0]] # type: ignore
+                colors = ["red" if i.item() == idx_next[0].item()
+                          else "blue"
+                          for i in top_indices[0]]
+                
+                plt.figure(figsize=(10,4))
+                plt.bar(top_labels, top_probs[0], color=colors)
+                plt.xlabel("Word label")
+                plt.ylabel("Probability")
+                plt.title("Top 10 next token probabilities")
+                plt.tight_layout()
+                plt.show()
+                plt.close()
             # append sampled index to the running sequence and continue
             idx = torch.cat((idx, idx_next), dim=1)
 
