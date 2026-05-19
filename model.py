@@ -327,13 +327,14 @@ class GPT(nn.Module):
             idx_next = torch.multinomial(probs, num_samples=1)
             
             if show_probs:
+                probs_cpu = probs[0].detach().cpu()
                 # return the top 10 highest probabilities and their indices in probs
-                top_probs, top_indices = torch.topk(probs, k=10, dim=-1, largest=True, sorted=True)
+                top_probs, top_indices = torch.topk(probs_cpu, k=10, dim=-1, largest=True, sorted=True)
                 # labels for the top 10
-                top_labels = [decode([i.item()]) for i in top_indices[0]] # type: ignore
+                top_labels = [decode([i.item()]) for i in top_indices] # type: ignore
                 colors = ["red" if i.item() == idx_next[0].item()
                           else "blue"
-                          for i in top_indices[0]]
+                          for i in top_indices]
                 
                 plt.figure(figsize=(10,4))
                 plt.bar(top_labels, top_probs[0], color=colors)
