@@ -337,7 +337,7 @@ class GPT(nn.Module):
                           for i in top_indices]
                 
                 plt.figure(figsize=(10,4))
-                plt.bar(top_labels, top_probs[0], color=colors)
+                plt.bar(top_labels, top_probs, color=colors)
                 plt.xlabel("Word label")
                 plt.ylabel("Probability")
                 plt.title("Top 10 next token probabilities")
