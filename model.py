@@ -304,14 +304,22 @@ class GPT(nn.Module):
         return mfu
 
     @torch.no_grad()
-    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None, show_probs=False, decode=None):
+    def generate(self, 
+                 idx, 
+                 max_new_tokens, 
+                 temperature=1.0, 
+                 top_k=None, 
+                 show_probs=False, 
+                 decode=None, 
+                 fixed_response=None):
         """
         Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
         sum_log_prob = 0.0   # Initialize log probability sum
-        for _ in range(max_new_tokens):
+        for i in range(max_new_tokens):
+            
             # if the sequence context is growing too long we must crop it at block_size
             idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
             # forward the model to get the logits for the index in the sequence
@@ -324,8 +332,12 @@ class GPT(nn.Module):
                 logits[logits < v[:, [-1]]] = -float('Inf')
             # apply softmax to convert logits to (normalized) probabilities
             probs = F.softmax(logits, dim=-1)
+            
             # sample from the distribution
-            idx_next = torch.multinomial(probs, num_samples=1)
+            if fixed_response is None: 
+                idx_next = torch.multinomial(probs, num_samples=1)
+            else:
+                idx_next = torch.tensor([[fixed_response[i]]], dtype=torch.long)
             
             # add log probability of next token to sum
             token_log_prob = torch.log(probs[0, int(idx_next[0].item())])
@@ -336,10 +348,10 @@ class GPT(nn.Module):
                 # return the top 10 highest probabilities and their indices in probs
                 top_probs, top_indices = torch.topk(probs_cpu, k=10, dim=-1, largest=True, sorted=True)
                 # labels for the top 10
-                top_labels = [decode([i.item()]) for i in top_indices] # type: ignore
-                colors = ["red" if i.item() == idx_next[0].item()
+                top_labels = [decode([t.item()]) for t in top_indices] # type: ignore
+                colors = ["red" if t.item() == idx_next[0].item()
                           else "blue"
-                          for i in top_indices]
+                          for t in top_indices]
                 
                 plt.figure(figsize=(10,4))
                 plt.bar(top_labels, top_probs, color=colors)
