@@ -23,7 +23,7 @@ device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1', etc.
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32' or 'bfloat16' or 'float16'
 compile = False # use PyTorch 2.0 to compile the model to be faster
 show_probs = False   # displays a bar chart showing the probability of the top 10 tokens
-fixed_response = None  
+fixed_response_text = ""
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
 
@@ -88,6 +88,8 @@ x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
 with torch.no_grad():
     with ctx:
         for k in range(num_samples):
+            if fixed_response_text: 
+                fixed_response = encode(fixed_response_text)
             y, seq_prob = model.generate(x, 
                                          max_new_tokens, 
                                          temperature=temperature, 

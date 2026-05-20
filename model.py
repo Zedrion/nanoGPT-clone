@@ -317,7 +317,12 @@ class GPT(nn.Module):
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
-        sum_log_prob = 0.0   # Initialize log probability sum
+        # Initialize log probability sum
+        sum_log_prob = 0.0   
+        
+        if fixed_response is not None: 
+            max_new_tokens = len(fixed_response)
+            
         for i in range(max_new_tokens):
             
             # if the sequence context is growing too long we must crop it at block_size
