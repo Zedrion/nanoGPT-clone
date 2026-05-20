@@ -1,6 +1,31 @@
 from sample import *   # brings in model, ctx, encode, decode, etc.
 import json
+from datasets import load_dataset
 
+dataset = load_dataset("Rowan/hellaswag", split="train")
+
+# Create prompt-response pairs from the dataset
+pairs = []
+for row in dataset.select(range(100)):  # Take first 100 rows
+    endings = row["endings"]
+    correct = int(row["label"])
+    
+    prompt = (
+        f"{row['ctx']}\n"  # Implicit string concatenation without "+"
+        f"A) {endings[0]}\n"
+        f"B) {endings[1]}\n"
+        f"C) {endings[2]}\n"
+        f"D) {endings[3]}\n"
+        f"Which ending makes the most sense?"
+    )
+    response = ["A", "B", "C", "D"][correct]  # Direct list indexing: response is A-D based on whether correct is 0-3
+    pairs.append({"prompt": prompt, "response": response})  # Add one dictionary to list
+
+# Write the prompt-response pairs to the json file
+with open("eval_data.json", "w") as f:
+    json.dump(pairs, f, indent=2)
+    
+    
 def eval():
     
     with open("eval_data.json", "r") as f:
