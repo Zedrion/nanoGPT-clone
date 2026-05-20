@@ -20,7 +20,7 @@ def eval():
                                              decode=decode,
                                              fixed_response=fixed_response)
                 print(f"Prompt: {pair['prompt']}")
-                print(f"Response: {decode(y[0].tolist())}")
+                print(f"Response: {pair["response"]}")
                 print(f"\nProbability of response: {seq_prob}")
                 print('-' * 32)
 
