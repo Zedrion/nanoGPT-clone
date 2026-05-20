@@ -90,6 +90,8 @@ with torch.no_grad():
         for k in range(num_samples):
             if fixed_response_text: 
                 fixed_response = encode(fixed_response_text)
+            else:
+                fixed_response = None
             y, seq_prob = model.generate(x, 
                                          max_new_tokens, 
                                          temperature=temperature, 
