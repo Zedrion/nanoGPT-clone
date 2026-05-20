@@ -2,11 +2,11 @@ from sample import *   # brings in model, ctx, encode, decode, etc.
 import json
 from datasets import load_dataset
 
-dataset = load_dataset("Rowan/hellaswag", split="test")
+dataset = load_dataset("Rowan/hellaswag", split="validation")
 
 # Create prompt-response pairs from the dataset
 pairs = []
-for row in dataset.select(range(100)):  # Take first 100 rows
+for row in dataset:
     endings = row["endings"]
     correct = int(row["label"])
     

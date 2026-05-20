@@ -4,9 +4,12 @@ import tiktoken
 import numpy as np
 from datasets import load_dataset
 
-# load the hellaswag dataset
-train_dataset = load_dataset("Rowan/hellaswag", split="train")
-val_dataset = load_dataset("Rowan/hellaswag", split="validation")
+# load the hellaswag dataset, train split
+data = load_dataset("Rowan/hellaswag", split="train")
+
+n = len(data)
+train_dataset = data.select(range(int(n*0.9)))
+val_dataset = data.select(range(int(n*0.9), n))
 
 # convert to text: context + correct ending
 train_data = ""
@@ -19,9 +22,9 @@ for row in train_dataset:
         f"B) {endings[1]}\n"
         f"C) {endings[2]}\n"
         f"D) {endings[3]}\n"
-        f"Which ending makes the most sense?\nAnswer: {['A', 'B', 'C', 'D'][correct]}\n\n"
+        f"Which ending makes the most sense?\nAnswer:{[' A', ' B', ' C', ' D'][correct]}\n\n"
     )
-
+    
 val_data = ""
 for row in val_dataset:
     endings = row["endings"]
@@ -32,7 +35,7 @@ for row in val_dataset:
         f"B) {endings[1]}\n"
         f"C) {endings[2]}\n"
         f"D) {endings[3]}\n"
-        f"Which ending makes the most sense?\nAnswer: {['A', 'B', 'C', 'D'][correct]}\n\n"
+        f"Which ending makes the most sense?\nAnswer:{[' A', ' B', ' C', ' D'][correct]}\n\n"
     )
 
 # encode with tiktoken gpt2 bpe
