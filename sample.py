@@ -99,4 +99,4 @@ with torch.no_grad():
                                          fixed_response=fixed_response)
             print(decode(y[0].tolist()))
             print('---------------')
-            if show_probs: print(f"\nProbability of sequence: {seq_prob}")
+            print(f"\nProbability of generated sequence: {seq_prob}")

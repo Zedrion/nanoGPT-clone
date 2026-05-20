@@ -340,7 +340,7 @@ class GPT(nn.Module):
             
             # sample from the distribution
             if fixed_response is not None: 
-                idx_next = torch.tensor([[fixed_response[i]]], dtype=torch.long)
+                idx_next = torch.tensor([[fixed_response[i]]], dtype=torch.long, device=idx.device)
             else:
                 idx_next = torch.multinomial(probs, num_samples=1)
                 
