@@ -6,7 +6,7 @@ dataset = load_dataset("Rowan/hellaswag", split="validation")
 
 # Create prompt-response pairs from the dataset
 pairs = []
-for row in dataset:
+for row in dataset.select(range(100)):
     endings = row["endings"]
     correct = int(row["label"])
     
@@ -28,6 +28,8 @@ with open("eval_data.json", "w") as f:
     
 def eval():
     
+    seq_probs = []
+    
     with open("eval_data.json", "r") as f:
         data = json.load(f)
     
@@ -43,9 +45,12 @@ def eval():
                                              show_probs=show_probs,
                                              decode=decode,
                                              fixed_response=fixed_response)
-                print(f"Prompt: {pair['prompt']}")
-                print(f"Response: {pair["response"]}")
-                print(f"\nProbability of response: {seq_prob}")
-                print('-' * 32)
+                seq_probs.append(seq_prob)
+                print(f"Prompt:\n{pair['prompt']}")
+                print(f"Response:\n{pair["response"]}")
+                print(f"Probability of response: {seq_prob}")
+                
+    print(f"\nAvg response probability: {sum(seq_probs)/len(seq_probs)}")
+    print('-' * 32)
 
 eval()
