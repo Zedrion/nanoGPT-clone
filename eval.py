@@ -1,4 +1,3 @@
-# eval.py
 from sample import *   # brings in model, ctx, encode, decode, etc.
 import json
 
