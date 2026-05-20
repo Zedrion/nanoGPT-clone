@@ -49,8 +49,8 @@ def eval():
                 print(f"Prompt:\n{pair['prompt']}")
                 print(f"Response:\n{pair["response"]}")
                 print(f"Probability of response: {seq_prob}")
+                print('-' * 32)
                 
     print(f"\nAvg response probability: {sum(seq_probs)/len(seq_probs)}")
-    print('-' * 32)
 
 eval()
