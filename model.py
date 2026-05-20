@@ -334,10 +334,11 @@ class GPT(nn.Module):
             probs = F.softmax(logits, dim=-1)
             
             # sample from the distribution
-            if fixed_response is None: 
-                idx_next = torch.multinomial(probs, num_samples=1)
-            else:
+            if fixed_response is not None: 
                 idx_next = torch.tensor([[fixed_response[i]]], dtype=torch.long)
+            else:
+                idx_next = torch.multinomial(probs, num_samples=1)
+                
             
             # add log probability of next token to sum
             token_log_prob = torch.log(probs[0, int(idx_next[0].item())])
