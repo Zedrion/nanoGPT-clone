@@ -2,5 +2,13 @@
   {
     "prompt": "My favorite person is",
     "response": " you"
+  },
+  {
+    "prompt": "My favorite food is",
+    "response": " sushi"
+  },
+  {
+    "prompt": "My favorite sport is",
+    "response": " football"
   }
 ]

@@ -4,7 +4,7 @@ import tiktoken
 import numpy as np
 from datasets import load_dataset
 
-# load the hellaswag dataset, train split
+# load the train split of the hellaswag dataset
 print("Loading Rowan/hellaswag train split")
 data = load_dataset("Rowan/hellaswag", split="train")
 
@@ -14,7 +14,7 @@ n = len(data)
 train_dataset = data.select(range(int(n*0.9 / 10)))
 val_dataset = data.select(range(int(n*0.9 / 10), int(n*0.9 / 10) + int(n*0.1 / 10)))
 
-# convert to text: context + correct ending
+# convert to text: context + all endings + correct ending
 print("Converting to text")
 train_data = ""
 for row in train_dataset:

@@ -338,10 +338,11 @@ class GPT(nn.Module):
             # apply softmax to convert logits to (normalized) probabilities
             probs = F.softmax(logits, dim=-1)
             
-            # sample from the distribution
+            # if there is a fixed response, the token at index i is the selected next token
             if fixed_response is not None: 
                 idx_next = torch.tensor([[fixed_response[i]]], dtype=torch.long, device=idx.device)
             else:
+                # if not, sample from the distribution
                 idx_next = torch.multinomial(probs, num_samples=1)
                 
             

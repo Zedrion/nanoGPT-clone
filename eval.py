@@ -6,7 +6,7 @@ import json
 from datasets import load_dataset
 
 # -----------------------------------------------------------------------------
-eval_mode = "ranked"  # "prob" / "ranked"
+eval_mode = "prob"  # "prob" / "ranked"
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
 dataset = load_dataset("Rowan/hellaswag", split="validation")
@@ -49,6 +49,8 @@ def eval():
     
     with torch.no_grad():
         with ctx:
+            
+            # For each pair: get probability of response given prompt
             for pair in data:
                 x = torch.tensor(encode(pair["prompt"]), dtype=torch.long, device=device)[None, ...]
                 fixed_response = encode(pair["response"])
@@ -81,6 +83,8 @@ def ranked_eval():
         with ctx:
             for pair in data:
                 option_probs = []  # List of 4 probabilities
+                
+                # For each option in each pair: get probability of option as response given prompt
                 for option in options:
                     x = torch.tensor(encode(pair["prompt"]), dtype=torch.long, device=device)[None, ...]
                     fixed_response = encode(option)
