@@ -4,6 +4,7 @@ from datasets import load_dataset
 
 # -----------------------------------------------------------------------------
 eval_mode = "prob"  # "prob" / "ranked"
+exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
 dataset = load_dataset("Rowan/hellaswag", split="validation")
 
@@ -102,6 +103,7 @@ def ranked_eval():
     print(f"Accuracy: {acc*100:.2f}%")
     
 def eval_select(eval_mode="prob"):
+    
     match eval_mode:
         case "ranked":
             ranked_eval()
