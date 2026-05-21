@@ -3,7 +3,7 @@ import json
 from datasets import load_dataset
 
 # -----------------------------------------------------------------------------
-eval_mode = "prob"  # "prob" / "ranked"
+eval_mode = "ranked"  # "prob" / "ranked"
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
 dataset = load_dataset("Rowan/hellaswag", split="validation")

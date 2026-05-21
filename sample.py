@@ -24,6 +24,7 @@ dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported
 compile = False # use PyTorch 2.0 to compile the model to be faster
 show_probs = False   # displays a bar chart showing the probability of the top 10 tokens
 fixed_response_text = ""
+eval_mode = "prob"  # "prob" / "ranked"
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
 
