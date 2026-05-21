@@ -1,3 +1,6 @@
+import importlib
+import sample
+importlib.reload(sample)  # forces sample to be fresh every time eval.py is called
 from sample import *   # brings in model, ctx, encode, decode, etc.
 import json
 from datasets import load_dataset
