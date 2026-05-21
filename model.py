@@ -369,6 +369,7 @@ class GPT(nn.Module):
                 plt.close()
             # append sampled index to the running sequence and continue
             idx = torch.cat((idx, idx_next), dim=1)
+            
         # exponentiate log accumulation to get actual probability of sequence
         sequence_prob = torch.exp(torch.tensor(sum_log_prob)).item()  # or import numpy/math and use numpy.exp()/math.exp()
         

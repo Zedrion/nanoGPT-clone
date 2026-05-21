@@ -84,6 +84,7 @@ def ranked_eval():
                 for option in options:
                     x = torch.tensor(encode(pair["prompt"]), dtype=torch.long, device=device)[None, ...]
                     fixed_response = encode(option)
+                    print(f"fixed_response:{fixed_response}")
                     _, option_prob = model.generate(x,
                                                     max_new_tokens,
                                                     temperature=temperature,
@@ -95,6 +96,7 @@ def ranked_eval():
                 
                 # Answer is index of option with highest prob     
                 answer = options[option_probs.index(max(option_probs))]
+                print(f"Option probs: {option_probs}")
                 results.append(answer==pair["response"])  # True if correct, False if not
 
                 print(f"Prompt:\n{pair['prompt']}")
